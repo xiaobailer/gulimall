@@ -1,6 +1,7 @@
 package com.atguigu.gulimall.product.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 // import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -40,6 +41,20 @@ public class CategoryController {
         PageUtils page = categoryService.queryPage(params);
 
         return R.ok().put("page", page);
+    }
+
+    /*
+     * @Author 42092
+     * @Date 2022/11/12 10:11
+     * @param null
+     * @return
+     * 查询分类，子类，树形结构
+     **/
+    @RequestMapping("/list/tree")
+    public R getAllList() {
+        List<CategoryEntity> list = categoryService.listWithTree();
+        System.out.println("希望如此~~~~");
+        return R.ok().put("listTree", list);
     }
 
 
