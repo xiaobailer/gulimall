@@ -26,7 +26,6 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
                 new Query<CategoryEntity>().getPage(params),
                 new QueryWrapper<CategoryEntity>()
         );
-
         return new PageUtils(page);
     }
 
@@ -36,19 +35,25 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     public List<CategoryEntity> listWithTree() {
         List<CategoryEntity> entities = baseMapper.selectList(null);
         List<CategoryEntity> collect = entities.stream().filter((categoryEntity -> categoryEntity.getParentCid() == 0)).map((menu) -> {
-            getChild(menu, entities);
+            menu.setChild(getChild(menu, entities));
             return menu;
         }).sorted((menu1, menu2) -> {
             return (menu1.getSort() == null ? 0 : menu1.getSort()) - (menu2.getSort() == null ? 0 : menu2.getSort());
-        }).
-                collect(Collectors.toList());
+        }).collect(Collectors.toList());
         return collect;
+    }
+
+    @Override
+    public void removeMenueByIds(List<Long> asList) {
+        //TODO 检查当前删除菜单，是否被别的地方引用
+        //逻辑删除
+        baseMapper.deleteBatchIds(asList);
     }
 
 
     public List<CategoryEntity> getChild(CategoryEntity root, List<CategoryEntity> all) {
         List<CategoryEntity> collect = all.stream().filter((categoryEntity -> categoryEntity.getParentCid() == root.getCatId())).map((menu) -> {
-            getChild(menu, all);
+            menu.setChild(getChild(menu, all));
             return menu;
         }).sorted((menu1, menu2) -> {
             return (menu1.getSort() == null ? 0 : menu1.getSort()) - (menu2.getSort() == null ? 0 : menu2.getSort());

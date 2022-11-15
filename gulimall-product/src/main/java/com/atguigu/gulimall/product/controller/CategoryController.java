@@ -53,8 +53,8 @@ public class CategoryController {
     @RequestMapping("/list/tree")
     public R getAllList() {
         List<CategoryEntity> list = categoryService.listWithTree();
-        System.out.println("希望如此~~~~");
-        return R.ok().put("listTree", list);
+        System.out.println("希望如此");
+        return R.ok().put("data", list);
     }
 
 
@@ -65,7 +65,6 @@ public class CategoryController {
    //@RequiresPermissions("product:category:info")
     public R info(@PathVariable("catId") Long catId){
 		CategoryEntity category = categoryService.getById(catId);
-
         return R.ok().put("category", category);
     }
 
@@ -97,8 +96,8 @@ public class CategoryController {
     @RequestMapping("/delete")
     //@RequiresPermissions("product:category:delete")
     public R delete(@RequestBody Long[] catIds){
-		categoryService.removeByIds(Arrays.asList(catIds));
-
+//		categoryService.removeByIds(Arrays.asList(catIds));
+        categoryService.removeMenueByIds(Arrays.asList(catIds));
         return R.ok();
     }
 

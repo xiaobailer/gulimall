@@ -8,9 +8,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 @EnableDiscoveryClient
 @SpringBootApplication
 public class GulimallProductApplication {
-
     public static void main(String[] args) {
         SpringApplication.run(GulimallProductApplication.class, args);
     }
-
 }
