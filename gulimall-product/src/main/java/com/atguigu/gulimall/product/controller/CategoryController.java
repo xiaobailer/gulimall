@@ -53,7 +53,6 @@ public class CategoryController {
     @RequestMapping("/list/tree")
     public R getAllList() {
         List<CategoryEntity> list = categoryService.listWithTree();
-        System.out.println("希望如此");
         return R.ok().put("data", list);
     }
 
@@ -65,7 +64,7 @@ public class CategoryController {
    //@RequiresPermissions("product:category:info")
     public R info(@PathVariable("catId") Long catId){
 		CategoryEntity category = categoryService.getById(catId);
-        return R.ok().put("category", category);
+        return R.ok().put("data", category);
     }
 
     /**
@@ -82,11 +81,17 @@ public class CategoryController {
     /**
      * 修改
      */
+    @RequestMapping("/update/sort")
+    //@RequiresPermissions("product:category:update")
+    public R updateSort(@RequestBody CategoryEntity[] category){
+        categoryService.updateBatchById(Arrays.asList(category));
+        return R.ok();
+    }
+
     @RequestMapping("/update")
     //@RequiresPermissions("product:category:update")
     public R update(@RequestBody CategoryEntity category){
 		categoryService.updateById(category);
-
         return R.ok();
     }
 
