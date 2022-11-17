@@ -5,6 +5,7 @@ import java.util.Map;
 
 // import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +26,7 @@ import com.atguigu.common.utils.R;
  * @email th15986581153@gmail.com
  * @date 2022-11-08 17:24:27
  */
+
 @RestController
 @RequestMapping("product/brand")
 
@@ -73,9 +75,18 @@ public class BrandController {
     //@RequiresPermissions("product:brand:update")
     public R update(@RequestBody BrandEntity brand){
 		brandService.updateById(brand);
-
         return R.ok();
     }
+    /**
+     * 修改状态
+     */
+    @RequestMapping("/update/status")
+    //@RequiresPermissions("product:brand:update")
+    public R updateStatus(@RequestBody BrandEntity brand){
+        brandService.updateById(brand);
+        return R.ok();
+    }
+
 
     /**
      * 删除

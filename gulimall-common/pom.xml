@@ -23,7 +23,6 @@
         </plugin>
     </plugins>
 </build>
-
     <dependencies>
 <!--        mybatis-plus 依赖-->
         <dependency>
@@ -77,6 +76,7 @@
             <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
          </dependency>
 
+        <!--阿里OSS云存储stater-->
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -94,9 +94,16 @@
             <artifactId>junit-jupiter</artifactId>
             <version>RELEASE</version>
         </dependency>
+        <dependency>
+            <!--引入4.5.0 版本依赖-->
+            <groupId>com.aliyun</groupId>
+            <artifactId>aliyun-java-sdk-core</artifactId>
+            <version>4.5.0</version>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
+
         <dependencies>
             <dependency>
                 <groupId>com.alibaba.cloud</groupId>

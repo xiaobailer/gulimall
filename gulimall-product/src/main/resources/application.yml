@@ -4,8 +4,6 @@ spring:
     password: root
     url: jdbc:mysql://192.168.6.128:3306/gulimall_pms
     driver-class-name: com.mysql.jdbc.Driver
-
-  cloud:
     nacos:
       discovery:
         server-addr: 127.0.0.1:8848
@@ -22,3 +20,4 @@ mybatis-plus:
 logging:
   level:
     com.atguigu.gulimall: debug
+
