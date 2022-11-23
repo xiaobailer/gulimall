@@ -1,5 +1,7 @@
 package com.atguigu.gulimall.product.service.impl;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import java.util.Map;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -12,7 +14,7 @@ import com.atguigu.gulimall.product.dao.AttrGroupDao;
 import com.atguigu.gulimall.product.entity.AttrGroupEntity;
 import com.atguigu.gulimall.product.service.AttrGroupService;
 
-
+@Slf4j
 @Service("attrGroupService")
 public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEntity> implements AttrGroupService {
 
@@ -26,4 +28,22 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
         return new PageUtils(page);
     }
 
+    @Override
+    public PageUtils queryPage(Map<String, Object> params, Long catelogId) {
+        QueryWrapper<AttrGroupEntity> wrapper = new QueryWrapper<>();
+        String key = String.valueOf(params.get("key"));
+        if (!StringUtils.isEmpty(key)) {
+            wrapper.and((obj) -> {
+                obj.eq("attr_group_id", key).or().like("attr_group_name", key);
+            });
+        }
+        if (catelogId == 0) {
+            IPage<AttrGroupEntity> page = this.page(new Query<AttrGroupEntity>().getPage(params));
+            return new PageUtils(page);
+        }else {
+            wrapper.eq("catelog_id", catelogId);
+            IPage<AttrGroupEntity> page = this.page(new Query<AttrGroupEntity>().getPage(params),wrapper);
+            return new PageUtils(page);
+        }
+    }
 }
