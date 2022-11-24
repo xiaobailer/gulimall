@@ -75,7 +75,8 @@ public class BrandController {
     @RequestMapping("/update")
     //@RequiresPermissions("product:brand:update")
     public R update(@Validated({UpdateGroup.class})@RequestBody BrandEntity brand){
-		brandService.updateById(brand);
+        //更新自身的同时，判断品牌名是否更改，如更改，同步更新到关联表中的品牌名 ，级联修改关联表中的数据
+		brandService.updateDetail(brand);
         return R.ok();
     }
     /**

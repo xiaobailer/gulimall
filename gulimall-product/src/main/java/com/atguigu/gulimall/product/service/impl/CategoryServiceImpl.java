@@ -1,5 +1,8 @@
 package com.atguigu.gulimall.product.service.impl;
 
+import com.atguigu.gulimall.product.service.CategoryBrandRelationService;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -22,6 +25,8 @@ import com.atguigu.gulimall.product.service.CategoryService;
 @Service("categoryService")
 public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity> implements CategoryService {
 
+    @Autowired
+    CategoryBrandRelationService categoryBrandRelationService;
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<CategoryEntity> page = this.page(
@@ -57,6 +62,19 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         List<Long> parentPath = findParentPath(catelogId, paths);
         Collections.reverse(parentPath);
         return parentPath.toArray(new Long[parentPath.size()]);
+    }
+    /**
+     * @Author 级联更新关联表中的数据
+     * @Date 2022/11/24 19:15 
+      * @param categoryEntity  
+     * @return void
+     **/       
+    @Override
+    public void updateCategoryDetail(CategoryEntity categoryEntity) {
+        this.updateById(categoryEntity);
+        if (!StringUtils.isEmpty(categoryEntity.getName())) {
+            categoryBrandRelationService.updateCategoryName(categoryEntity.getCatId(), categoryEntity.getName());
+        }
     }
 
     public List<Long> findParentPath(Long catelogId,List<Long> paths){

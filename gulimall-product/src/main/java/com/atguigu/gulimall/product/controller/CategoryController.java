@@ -74,7 +74,6 @@ public class CategoryController {
     //@RequiresPermissions("product:category:save")
     public R save(@RequestBody CategoryEntity category){
 		categoryService.save(category);
-
         return R.ok();
     }
 
@@ -85,13 +84,15 @@ public class CategoryController {
     //@RequiresPermissions("product:category:update")
     public R updateSort(@RequestBody CategoryEntity[] category){
         categoryService.updateBatchById(Arrays.asList(category));
+
         return R.ok();
     }
 
     @RequestMapping("/update")
     //@RequiresPermissions("product:category:update")
     public R update(@RequestBody CategoryEntity category){
-		categoryService.updateById(category);
+        //级联更新到关联表中的数据
+        categoryService.updateCategoryDetail(category);
         return R.ok();
     }
 
