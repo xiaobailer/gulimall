@@ -7,7 +7,6 @@ import com.atguigu.gulimall.product.dao.CategoryDao;
 import com.atguigu.gulimall.product.entity.AttrAttrgroupRelationEntity;
 import com.atguigu.gulimall.product.entity.AttrGroupEntity;
 import com.atguigu.gulimall.product.entity.CategoryEntity;
-import com.atguigu.gulimall.product.service.AttrAttrgroupRelationService;
 import com.atguigu.gulimall.product.service.CategoryService;
 import com.atguigu.gulimall.product.vo.AttrRespVo;
 import com.atguigu.gulimall.product.vo.AttrVo;
@@ -67,20 +66,22 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         //1.保存分组中的基本数据，将数据存入`pms_attr`表中
         AttrEntity attrEntity = new AttrEntity();
         BeanUtils.copyProperties(attrvo,attrEntity);
-        System.out.println(attrvo);
         this.save(attrEntity);
-        //2.将从前端获取到的分组id，和基本信息的id存入关联表中`pms_attr_attrgroup_relation`
-        AttrAttrgroupRelationEntity relationEntity = new AttrAttrgroupRelationEntity();
-        relationEntity.setAttrGroupId(attrvo.getAttrGroupId());
-        relationEntity.setAttrId(attrEntity.getAttrId());
-        //调用dao存入数据库
-        relationDao.insert(relationEntity);
+        if (attrvo.getAttrType() == ProductConstant.AttrEnum.ATTR_TYPE_BASE.getCode()) {
+            //2.将从前端获取到的分组id，和基本信息的id存入关联表中`pms_attr_attrgroup_relation`
+            AttrAttrgroupRelationEntity relationEntity = new AttrAttrgroupRelationEntity();
+            relationEntity.setAttrGroupId(attrvo.getAttrGroupId());
+            relationEntity.setAttrId(attrEntity.getAttrId());
+            //调用dao存入数据库
+            relationDao.insert(relationEntity);
+        }
     }
 
     //回显功能
     @Override
-    public PageUtils queryBaseAttrPage(Map<String, Object> params, Long catelogId) {
-        QueryWrapper<AttrEntity> wrapper = new QueryWrapper<>();
+    public PageUtils queryBaseAttrPage(Map<String, Object> params, Long catelogId, String attrType) {
+        QueryWrapper<AttrEntity> wrapper = new QueryWrapper<AttrEntity>().eq("attr_type",
+                "base".equalsIgnoreCase(attrType)?ProductConstant.AttrEnum.ATTR_TYPE_SALE:ProductConstant.AttrEnum.ATTR_TYPE_BASE);
         if (catelogId != 0) {
             //查询指定分类的规格信息
             wrapper.eq("catelog_id", catelogId);
@@ -91,7 +92,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
                 queryWrapper.eq("attr_id", key).or().like("attr_name", key);
             });
         }
-        //查询所属分组
+
 
         //查询所有数据
         IPage<AttrEntity> page = this.page(
@@ -103,11 +104,13 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         List<AttrRespVo> respVo = records.stream().map((attrEntity) -> {
             AttrRespVo attrRespVo = new AttrRespVo();
             BeanUtils.copyProperties(attrEntity, attrRespVo);
-            //获取所属分组名字
-            AttrAttrgroupRelationEntity relationEntity = relationDao.selectOne(new QueryWrapper<AttrAttrgroupRelationEntity>().eq("attr_id", attrEntity.getAttrId()));
-            if (relationEntity != null) {
-                AttrGroupEntity attrgroup = attrGroupDao.selectOne(new QueryWrapper<AttrGroupEntity>().eq("attr_group_id", relationEntity.getAttrGroupId()));
-                attrRespVo.setGroupName(attrgroup.getAttrGroupName());
+            if ("base".equalsIgnoreCase(attrType)) {
+                //获取所属分组名字
+                AttrAttrgroupRelationEntity relationEntity = relationDao.selectOne(new QueryWrapper<AttrAttrgroupRelationEntity>().eq("attr_id", attrEntity.getAttrId()));
+                if (relationEntity != null) {
+                    AttrGroupEntity attrgroup = attrGroupDao.selectOne(new QueryWrapper<AttrGroupEntity>().eq("attr_group_id", relationEntity.getAttrGroupId()));
+                    attrRespVo.setGroupName(attrgroup.getAttrGroupName());
+                }
             }
             //获取所属分类名字
             CategoryEntity categoryEntity = categoryDao.selectById(attrEntity.getCatelogId());
@@ -126,7 +129,6 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         AttrEntity attrEntity = this.getById(attrId);
         BeanUtils.copyProperties(attrEntity, attrRespVo);
         attrRespVo.setValueType(attrEntity.getValueType());
-        System.out.println("数值是：" + attrEntity.getValueType());
         if(attrEntity.getAttrType() == ProductConstant.AttrEnum.ATTR_TYPE_BASE.getCode()){
             //1、设置分组信息
             AttrAttrgroupRelationEntity attrgroupRelation = relationDao.selectOne(new QueryWrapper<AttrAttrgroupRelationEntity>().eq("attr_id", attrId));
@@ -138,7 +140,6 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
                 }
             }
         }
-
         //查询分类信息
         Long[] catelogPath = categoryService.findCatelogPath(attrEntity.getCatelogId());
         attrRespVo.setCatelogPath(catelogPath);
@@ -155,17 +156,17 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         AttrEntity attrEntity = new AttrEntity();
         BeanUtils.copyProperties(attr, attrEntity);
         this.updateById(attrEntity);
-
-        //关联表同步
-        AttrAttrgroupRelationEntity relationEntity = new AttrAttrgroupRelationEntity();
-        relationEntity.setAttrId(attr.getAttrId());
-        relationEntity.setAttrGroupId(attr.getAttrGroupId());
-        Integer count = relationDao.selectCount(new QueryWrapper<AttrAttrgroupRelationEntity>().eq("attr_id", attr.getAttrId()));
-        if (count > 0) {
-            relationDao.update(relationEntity, new UpdateWrapper<AttrAttrgroupRelationEntity>().eq("attr_id", attr.getAttrId()));
-        }else {
-            relationDao.insert(relationEntity);
+        if (attrEntity.getAttrType() == ProductConstant.AttrEnum.ATTR_TYPE_BASE.getCode()) {
+            //关联表同步
+            AttrAttrgroupRelationEntity relationEntity = new AttrAttrgroupRelationEntity();
+            relationEntity.setAttrId(attr.getAttrId());
+            relationEntity.setAttrGroupId(attr.getAttrGroupId());
+            Integer count = relationDao.selectCount(new QueryWrapper<AttrAttrgroupRelationEntity>().eq("attr_id", attr.getAttrId()));
+            if (count > 0) {
+                relationDao.update(relationEntity, new UpdateWrapper<AttrAttrgroupRelationEntity>().eq("attr_id", attr.getAttrId()));
+            }else {
+                relationDao.insert(relationEntity);
+            }
         }
-
     }
 }

@@ -30,12 +30,14 @@ public class AttrController {
     private AttrService attrService;
 
 
-
+    //product/attr/sale/list/0?
     // /product/attr/base/list/{catelogId}
-    @GetMapping("/base/list/{catelogId}")
+    @GetMapping("/{attrType}/list/{catelogId}")
     //@RequiresPermissions("product:attr:list")
-    public R getBaseAttr(@RequestParam Map<String, Object> params,@PathVariable("catelogId") Long catelogId){
-        PageUtils page = attrService.queryBaseAttrPage(params,catelogId);
+    public R getBaseAttr(@RequestParam Map<String, Object> params,
+                         @PathVariable("catelogId") Long catelogId,
+                         @PathVariable("attrType") String attrType){
+        PageUtils page = attrService.queryBaseAttrPage(params,catelogId,attrType);
         return R.ok().put("page", page);
     }
 
