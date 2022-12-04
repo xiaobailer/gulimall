@@ -3,8 +3,11 @@ package com.atguigu.gulimall.product.controller;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 // import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.atguigu.gulimall.product.entity.BrandEntity;
+import com.atguigu.gulimall.product.vo.BrandVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +33,24 @@ import com.atguigu.common.utils.R;
 public class CategoryBrandRelationController {
     @Autowired
     private CategoryBrandRelationService categoryBrandRelationService;
+    /**
+     * /product/categorybrandrelation/brands/list
+     * 获取分类关联的品牌
+     * 1.Controller:处理请求，接收和校验数据
+     * 2.Service接收controller传来的数据，进行业务校验
+     * 3.Controller接收Service处理完的数据，封装页面指定的vo
+     */
+    @GetMapping("/brands/list")
+    public R realtionBrandList(@RequestParam(value = "catId", required = true) Long catId) {
+        List<BrandEntity> brandEntities = categoryBrandRelationService.getBrandByCatId(catId);
+        List<BrandVo> collect = brandEntities.stream().map((entity) -> {
+            BrandVo brandVo = new BrandVo();
+            brandVo.setBrandId(entity.getBrandId());
+            brandVo.setBrandName(entity.getName());
+            return brandVo;
+        }).collect(Collectors.toList());
+        return R.ok().put("data", collect);
+    }
 
     /**
      * 品牌列表关联分类

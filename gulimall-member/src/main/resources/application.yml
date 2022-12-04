@@ -12,7 +12,10 @@ spring:
     name: gulimall-member
 
 mybatis-plus:
-  mapper-locations: classpath:/mapper/**.*xml #配置mapper扫描接口路径
+  mapper-locations: classpath:/mapper/**/*.xml #配置mapper扫描接口路径
   global-config:
     db-config:
       id-type: auto #主键自增
+logging:
+  level:
+    com.atguigu.gulimall: debug
