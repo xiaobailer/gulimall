@@ -10,7 +10,7 @@ spring:
   application:
     name: gulimall-product
 mybatis-plus:
-  mapper-locations: classpath:/mapper/**.*xml #配置mapper扫描接口路径
+  mapper-locations: classpath:/mapper/**/*.xml #配置mapper扫描接口路径
   global-config:
     db-config:
       id-type: auto #主键自增

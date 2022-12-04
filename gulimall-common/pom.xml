@@ -21,6 +21,18 @@
                 <target>1.8</target>
             </configuration>
         </plugin>
+        <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <executions>
+                <execution>
+                    <phase>none</phase>
+                </execution>
+            </executions>
+            <configuration>
+                <classifier>execute</classifier>
+            </configuration>
+        </plugin>
     </plugins>
 </build>
     <dependencies>
@@ -119,5 +131,7 @@
                 <scope>import</scope>
             </dependency>
         </dependencies>
+
+
     </dependencyManagement>
 </project>
