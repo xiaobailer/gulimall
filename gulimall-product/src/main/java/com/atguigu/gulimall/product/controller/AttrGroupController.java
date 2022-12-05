@@ -9,6 +9,7 @@ import com.atguigu.gulimall.product.entity.AttrEntity;
 import com.atguigu.gulimall.product.service.AttrAttrgroupRelationService;
 import com.atguigu.gulimall.product.service.AttrService;
 import com.atguigu.gulimall.product.service.CategoryService;
+import com.atguigu.gulimall.product.vo.AttrGroupWithAttr;
 import com.atguigu.gulimall.product.vo.AttrRelationGroupVo;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,15 @@ public class AttrGroupController {
     @Autowired
     private AttrAttrgroupRelationService relationService;
 
+
+    ///product/attrgroup/{catelogId}/withattr
+    @GetMapping("/{catelogId}/withattr")
+    public R getAttrGroupWithAttr(@PathVariable("catelogId") Long catelogId) {
+        //1.查出当前分类下的所有属性分组
+        //2.查出每个属性分组的所有属性
+        List<AttrGroupWithAttr> vos = attrGroupService.getAttrGroupWithAttr(catelogId);
+        return R.ok().put("data", vos);
+    }
 
     ///product/attrgroup/attr/relation
     @PostMapping("/attr/relation")

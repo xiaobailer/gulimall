@@ -1,7 +1,9 @@
 package com.atguigu.gulimall.product.service.impl;
 
 import com.atguigu.gulimall.product.entity.AttrAttrgroupRelationEntity;
+import com.atguigu.gulimall.product.entity.AttrEntity;
 import com.atguigu.gulimall.product.service.AttrService;
+import com.atguigu.gulimall.product.vo.AttrGroupWithAttr;
 import com.atguigu.gulimall.product.vo.AttrRelationGroupVo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -51,6 +53,8 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
     @Autowired
     AttrService attrService;
 
+    @Autowired
+    AttrGroupDao attrGroupDao;
 
 
     @Override
@@ -86,12 +90,25 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
         }
     }
 
-
-    /*
-     * @Author 删除关联关系
-     * @Date 2022/12/3 10:46
-      * @param relationGroupVos
-     * @return void
-     **/
-
+    /**
+    *@Description:根据分类id查出所有的分组以及这些组里面的属性
+    *@Parameter:[catelogId]
+    *@Return:java.util.List<com.atguigu.gulimall.product.vo.AttrGroupWithAttr>
+    *@Author:Sugar
+    *@Date:2022/12/5
+    **/
+    @Override
+    public List<AttrGroupWithAttr> getAttrGroupWithAttr(Long catelogId) {
+        //查询分组信息
+        List<AttrGroupEntity> attrGroupEntities = this.list(new QueryWrapper<AttrGroupEntity>().eq("catelog_id", catelogId));
+        //查询所有属性
+        List<AttrGroupWithAttr> collect = attrGroupEntities.stream().map((entity) -> {
+            AttrGroupWithAttr attrsVo = new AttrGroupWithAttr();
+            BeanUtils.copyProperties(entity, attrsVo);
+            List<AttrEntity> attrEntities = attrService.attrRelation(entity.getAttrGroupId());
+            attrsVo.setAttrs(attrEntities);
+            return attrsVo;
+        }).collect(Collectors.toList());
+        return collect;
+    }
 }
