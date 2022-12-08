@@ -1,6 +1,8 @@
 package com.atguigu.gulimall.product.service.impl;
 
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 import java.util.Map;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -24,6 +26,19 @@ public class ProductAttrValueServiceImpl extends ServiceImpl<ProductAttrValueDao
         );
 
         return new PageUtils(page);
+    }
+
+    /**
+    *@Description:保存spu的规格参数 pms_product_attr_value
+    *@Parameter:[collect]
+    *@Return:void
+    *@Author:Sugar
+    *@Date:2022/12/7
+    **/
+    @Override
+    public void insertProductAttrValues(List<ProductAttrValueEntity> collect) {
+        this.saveBatch(collect);
+        
     }
 
 }
