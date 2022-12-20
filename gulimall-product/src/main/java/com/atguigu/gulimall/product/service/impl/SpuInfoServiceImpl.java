@@ -1,10 +1,15 @@
 package com.atguigu.gulimall.product.service.impl;
 
+import com.atguigu.common.to.SkuReductionTo;
+import com.atguigu.common.to.SpuBoundTo;
+import com.atguigu.common.utils.R;
 import com.atguigu.gulimall.product.entity.*;
+import com.atguigu.gulimall.product.feign.CouponFeignService;
 import com.atguigu.gulimall.product.service.*;
 import com.atguigu.gulimall.product.vo.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -44,6 +49,9 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
     @Autowired
     SkuSaleAttrValueService skuSaleAttrValueService;
+
+    @Autowired
+    CouponFeignService couponFeignService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -104,12 +112,18 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
 
         //5.保存当前spu对应的所有sku信息 保存spu的积分信息：gulimall_sms->sms_spu_bounds
-
+        Bounds bounds = vo.getBounds();
+        SpuBoundTo spuBoundTo = new SpuBoundTo();
+        BeanUtils.copyProperties(bounds,spuBoundTo);
+        R r = couponFeignService.saveSpuBounds(spuBoundTo);
+        if (r.getCode() != 0) {
+            log.error("远程保存spu积分信息失败");
+        }
 
         //5.1sku的基本信息 pms_sku_info
         List<Skus> skus = vo.getSkus();
         if (skus != null || skus.size() > 0) {
-            skus.forEach(item->{
+            skus.forEach(   item->{
                 String defaultImage = "";
                 for (Images image : item.getImages()) {
                     if (image.getDefaultImg() == 1) {
@@ -148,13 +162,18 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
                     return attrValueEntity;
                 }).collect(Collectors.toList());
                 skuSaleAttrValueService.saveBatch(salveAttrValueEntity);
+                //5.4sku的优惠信息，满减信息gulimall_sms【跨库操作】sms_sku_ladder\sms_sku_full_reduction\sms_
+                SkuReductionTo skuReductionTo = new SkuReductionTo();
+                BeanUtils.copyProperties(item, skuReductionTo);
+                skuReductionTo.setSkuId(skuId);
+                R r1 = couponFeignService.saveSkuReduction(skuReductionTo);
+                if (r1.getCode() != 0) {
+                    log.error("远程保存sku优惠信息失败");
+                }
             });
         }
 
 
-
-
-        //5.4sku的优惠信息，满减信息gulimall_sms【跨库操作】sms_sku_ladder\sms_sku_full_reduction\sms_
 
     }
 
